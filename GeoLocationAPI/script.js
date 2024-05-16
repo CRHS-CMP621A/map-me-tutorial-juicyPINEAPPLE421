@@ -6,10 +6,10 @@ navigator.geolocation.getCurrentPosition(
     // console.log(latitude, longitude);
     console.log(`https://www.google.com/maps/@${latitude},${longitude}`);
     const coord = [latitude, longitude];
-
+    console.log(coord);
     var map = L.map("map").setView(coord, 13);
 
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    L.tileLayer("https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png", {
       attribution:
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(map);

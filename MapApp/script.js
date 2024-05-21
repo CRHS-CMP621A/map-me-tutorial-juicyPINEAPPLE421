@@ -63,6 +63,7 @@ form.addEventListener("submit", function (e) {
   e.preventDefault(); // code for adding map marker...
   const lat = mapEvent.latlng.lat;
   const lng = mapEvent.latlng.lng;
+  let activity = inputType.value;
   //   L.marker([lat, lng]).addTo(map).bindPopup("Workout").openPopup();
   L.marker([lat, lng])
     .addTo(map)
@@ -78,7 +79,12 @@ form.addEventListener("submit", function (e) {
     .setPopupContent("Workout")
     .openPopup();
 
-  inputDistance.value = null;
-  inputDuration.value = null;
-  inputCadence.value = null;
+  form.classList.add("hidden");
+  form.reset();
+  inputType.value = activity;
+});
+
+inputType.addEventListener("change", function () {
+  inputCadence.closest(".form__row").classList.toggle("form__row--hidden");
+  inputElevation.closest(".form__row").classList.toggle("form__row--hidden");
 });

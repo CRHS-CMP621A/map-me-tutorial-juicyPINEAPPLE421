@@ -13,6 +13,34 @@ const inputElevation = document.querySelector(".form__input--elevation");
 
 let map;
 let mapEvent; // make global variables
+let workouts = [];
+
+////CLASSES/////
+class Workout {
+  date = new Date();
+  id = (Date.now() + "").slice(-10);
+
+  constructor(coords, distance, duration) {
+    this.coords = coords; // [lat,lng]
+    this.distance = distance; //in km
+    this.duration = duration; //in min
+  }
+}
+
+//child classes of Workout class
+class Running extends Workout {
+  constructor(coords, distance, duration, cadence) {
+    super(coords, distance, duration); //from Workout class
+    this.cadence = cadence; //step/min
+  }
+}
+
+class Cycling extends Workout {
+  constructor(coords, distance, duration, elevation) {
+    super(coords, distance, duration); //from Workout class
+    this.elevation = elevation; //meters
+  }
+}
 
 navigator.geolocation.getCurrentPosition(
   function (position) {
@@ -53,6 +81,10 @@ navigator.geolocation.getCurrentPosition(
       form.classList.remove("hidden");
       inputDistance.focus();
     });
+
+    // const run1 = new Running([39, -12], 5.2, 24, 178);
+    // const cycling1 = new Cycling([39, -12], 27, 95, 523);
+    // console.log(run1, cycling1);
   },
   function () {
     alert("Could not get position");
@@ -60,11 +92,37 @@ navigator.geolocation.getCurrentPosition(
 );
 
 form.addEventListener("submit", function (e) {
-  e.preventDefault(); // code for adding map marker...
+  e.preventDefault(); //prevent form reloading page..
+
+  /////// get data from form
+  const type = inputType.value;
+  const distance = Number(inputDistance.value); //convert to number
+  const duration = Number(inputDuration.value);
   const lat = mapEvent.latlng.lat;
   const lng = mapEvent.latlng.lng;
-  let activity = inputType.value;
+  let workout;
   //   L.marker([lat, lng]).addTo(map).bindPopup("Workout").openPopup();
+
+  //If workout type running, create a running obj
+  if (type == "running") {
+    const cadence = Number(inputCadence.value);
+
+    //validate form data later
+
+    //create new running object
+    workout = new Running([lat, lng], distance, duration, cadence);
+  }
+
+  //If workout type cycling, create a cycling obj
+  if (type == "cycling") {
+    const elevation = +inputElevation.value;
+
+    //validate form data later
+
+    //create new cycling object
+    workout = new Cycling([lat, lng], distance, duration, elevation);
+  }
+
   L.marker([lat, lng])
     .addTo(map)
     .bindPopup(
@@ -79,9 +137,11 @@ form.addEventListener("submit", function (e) {
     .setPopupContent("Workout")
     .openPopup();
 
+  workouts.push(workout);
+  console.log(workouts);
   form.classList.add("hidden");
   form.reset();
-  inputType.value = activity;
+  inputType.value = type;
 });
 
 inputType.addEventListener("change", function () {

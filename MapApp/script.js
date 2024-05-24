@@ -29,16 +29,46 @@ class Workout {
 
 //child classes of Workout class
 class Running extends Workout {
+  type = "Running";
+
   constructor(coords, distance, duration, cadence) {
     super(coords, distance, duration); //from Workout class
     this.cadence = cadence; //step/min
+    this.calcPace();
+    this.setDescription();
+  }
+
+  //methods
+  calcPace() {
+    //min / km
+    this.pace = this.duration / this.distance;
+    this.pace = this.pace.toFixed(2);
+    return this.pace;
+  }
+
+  setDescription() {
+    this.discription = `${this.type} on ${this.date.toDateString()}`;
   }
 }
 
 class Cycling extends Workout {
+  type = "Cycling";
+
   constructor(coords, distance, duration, elevation) {
     super(coords, distance, duration); //from Workout class
     this.elevation = elevation; //meters
+    this.calcSpeed();
+    this.setDescription();
+  }
+
+  //methods
+  calcSpeed() {
+    this.speed = this.distance / (this.duration / 60);
+    this.speed = this.speed.toFixed(2);
+  }
+
+  setDescription() {
+    this.discription = `${this.type} on ${this.date.toDateString()}`;
   }
 }
 
@@ -93,7 +123,7 @@ navigator.geolocation.getCurrentPosition(
 
 form.addEventListener("submit", function (e) {
   e.preventDefault(); //prevent form reloading page..
-
+  //console.log(e);
   /////// get data from form
   const type = inputType.value;
   const distance = Number(inputDistance.value); //convert to number
@@ -111,6 +141,32 @@ form.addEventListener("submit", function (e) {
 
     //create new running object
     workout = new Running([lat, lng], distance, duration, cadence);
+
+    let html = `<li class="workout workout--running" data-id="${workout.id}">
+      <h2 class="workout__title">${workout.discription}</h2>
+      <div class="workout__details">
+        <span class="workout__icon">🏃‍♂️</span>
+        <span class="workout__value">${workout.distance}</span>
+        <span class="workout__unit">km</span>
+      </div>
+      <div class="workout__details">
+        <span class="workout__icon">⏱</span>
+        <span class="workout__value">${workout.duration}</span>
+        <span class="workout__unit">min</span>
+      </div>
+      <div class="workout__details">
+        <span class="workout__icon">⚡️</span>
+        <span class="workout__value">${workout.pace}</span>
+        <span class="workout__unit">min/km</span>
+      </div>
+      <div class="workout__details">
+        <span class="workout__icon">🦶🏼</span>
+        <span class="workout__value">${workout.cadence}</span>
+        <span class="workout__unit">spm</span>
+      </div>
+    </li>`;
+
+    form.insertAdjacentHTML("afterend", html);
   }
 
   //If workout type cycling, create a cycling obj
@@ -121,6 +177,32 @@ form.addEventListener("submit", function (e) {
 
     //create new cycling object
     workout = new Cycling([lat, lng], distance, duration, elevation);
+
+    let html = `<li class="workout workout--cycling" data-id="${workout.id}">
+      <h2 class="workout__title">${workout.discription}</h2>
+      <div class="workout__details">
+        <span class="workout__icon">🚴‍♀️</span>
+        <span class="workout__value">${workout.distance}</span>
+        <span class="workout__unit">km</span>
+      </div>
+      <div class="workout__details">
+        <span class="workout__icon">⏱</span>
+        <span class="workout__value">${workout.duration}</span>
+        <span class="workout__unit">min</span>
+      </div>
+      <div class="workout__details">
+        <span class="workout__icon">⚡️</span>
+        <span class="workout__value">${workout.speed}</span>
+        <span class="workout__unit">km/h</span>
+      </div>
+      <div class="workout__details">
+        <span class="workout__icon">⛰</span>
+        <span class="workout__value">${workout.elevation}</span>
+        <span class="workout__unit">m</span>
+      </div>
+    </li>`;
+
+    form.insertAdjacentHTML("afterend", html);
   }
 
   L.marker([lat, lng])
@@ -147,4 +229,20 @@ form.addEventListener("submit", function (e) {
 inputType.addEventListener("change", function () {
   inputCadence.closest(".form__row").classList.toggle("form__row--hidden");
   inputElevation.closest(".form__row").classList.toggle("form__row--hidden");
+});
+
+containerWorkouts.addEventListener("click", function (e) {
+  const workoutEl = e.target.closest(".workout"); //This selects the Workout class
+
+  if (!workoutEl) return; //if workout not found then return out of this function
+
+  const workout = workouts.find((work) => work.id === workoutEl.dataset.id);
+
+  map.setView(workout.coords, 13, {
+    //ser the Map View to the location of the workout coordinates
+    animate: true,
+    pan: {
+      duration: 1,
+    },
+  });
 });

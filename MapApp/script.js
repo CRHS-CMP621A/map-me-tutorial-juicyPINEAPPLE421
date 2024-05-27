@@ -88,6 +88,102 @@ navigator.geolocation.getCurrentPosition(
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(map);
 
+    //Task 7.2 Load existing workouts from local storage
+    const data = JSON.parse(localStorage.getItem("workouts"));
+
+    //check if there is any data already stored
+    if (data) {
+      workouts = data; //load data into Workouts array
+      console.log(data + "monkey");
+    }
+
+    //Render workout in sidebar for user
+    let html;
+    for (let workout of workouts) {
+      let lat = workout.coords[0]; //lat and lng of each workout needed to display the marker
+      let lng = workout.coords[1];
+
+      if (workout.type === "Running") {
+        html = `<li class="workout workout--running" data-id="${workout.id}">
+        <h2 class="workout__title">${workout.discription}</h2>
+        <div class="workout__details">
+          <span class="workout__icon">🏃‍♂️</span>
+          <span class="workout__value">${workout.distance}</span>
+          <span class="workout__unit">km</span>
+        </div>
+        <div class="workout__details">
+          <span class="workout__icon">⏱</span>
+          <span class="workout__value">${workout.duration}</span>
+          <span class="workout__unit">min</span>
+        </div>
+        <div class="workout__details">
+          <span class="workout__icon">⚡️</span>
+          <span class="workout__value">${workout.pace}</span>
+          <span class="workout__unit">min/km</span>
+        </div>
+        <div class="workout__details">
+          <span class="workout__icon">🦶🏼</span>
+          <span class="workout__value">${workout.cadence}</span>
+          <span class="workout__unit">spm</span>
+        </div>
+      </li>`;
+
+        L.marker([lat, lng])
+          .addTo(map)
+          .bindPopup(
+            L.popup({
+              maxWidth: 250,
+              minWidth: 100,
+              autoClose: false,
+              closeOnClick: true,
+              className: "running-popup",
+            })
+          )
+          .setPopupContent("Workout")
+          .openPopup();
+      } else if (workout.type === "Cycling") {
+        html = `<li class="workout workout--cycling" data-id="${workout.id}">
+        <h2 class="workout__title">${workout.discription}</h2>
+        <div class="workout__details">
+          <span class="workout__icon">🚴‍♀️</span>
+          <span class="workout__value">${workout.distance}</span>
+          <span class="workout__unit">km</span>
+        </div>
+        <div class="workout__details">
+          <span class="workout__icon">⏱</span>
+          <span class="workout__value">${workout.duration}</span>
+          <span class="workout__unit">min</span>
+        </div>
+        <div class="workout__details">
+          <span class="workout__icon">⚡️</span>
+          <span class="workout__value">${workout.speed}</span>
+          <span class="workout__unit">km/h</span>
+        </div>
+        <div class="workout__details">
+          <span class="workout__icon">⛰</span>
+          <span class="workout__value">${workout.elevation}</span>
+          <span class="workout__unit">m</span>
+        </div>
+      </li>`;
+
+        L.marker([lat, lng])
+          .addTo(map)
+          .bindPopup(
+            L.popup({
+              maxWidth: 250,
+              minWidth: 100,
+              autoClose: false,
+              closeOnClick: true,
+              className: "running-popup",
+            })
+          )
+          .setPopupContent("Workout")
+          .openPopup();
+      }
+      console.log(html);
+      form.insertAdjacentHTML("afterend", html);
+    }
+
     L.marker(coord).addTo(map).bindPopup("Your current location").openPopup();
 
     // console.log(map);
@@ -213,6 +309,7 @@ form.addEventListener("submit", function (e) {
         minWidth: 100,
         autoClose: false,
         closeOnClick: true,
+        //openOnClick: true,
         className: "running-popup",
       })
     )
@@ -221,6 +318,10 @@ form.addEventListener("submit", function (e) {
 
   workouts.push(workout);
   console.log(workouts);
+
+  //Task 7.1 Local Storage of Workouts Array
+  localStorage.setItem("workouts", JSON.stringify(workouts));
+
   form.classList.add("hidden");
   form.reset();
   inputType.value = type;

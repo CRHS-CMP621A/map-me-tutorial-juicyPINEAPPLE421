@@ -313,7 +313,7 @@ form.addEventListener("submit", function (e) {
         className: "running-popup",
       })
     )
-    .setPopupContent("Workout")
+    .setPopupContent(workout.discription)
     .openPopup();
 
   workouts.push(workout);
